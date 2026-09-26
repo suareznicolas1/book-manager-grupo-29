@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## [Ejercicio 2]
+
+- Se definieron las entidades del sistema:
+  - EntidadBase
+  - Libro
+  - Genero
+  - Editorial
+  - Moneda
+  - TipoCotizacion
+  - Precio
+  - Stock
+  - CotizacionDolar
+- Se aplicó encapsulación mediante atributos privados y properties.
+- Se agregaron validaciones básicas para los atributos de las entidades.
+- Se implementaron relaciones entre entidades mediante objetos.
+
 ## [Ejercicio 1]
 
 - Creación de la estructura inicial del proyecto.
