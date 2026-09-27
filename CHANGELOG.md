@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [Ejercicio 03]
+* Creación de interfaces abstractas para la persistencia de datos.
+* Implementación de RepositorioStock y RepositorioCotizacionDolar en memoria.
+* Desarrollo de RepositorioGenerico para cubrir el CRUD del resto de las entidades.
+
 ## [Ejercicio 2]
 
 - Se definieron las entidades del sistema:
