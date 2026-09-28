@@ -1,7 +1,7 @@
 import abc
 import datetime
 from typing import TypeVar, Generic, List, Optional
-from src.book_manager.entities.entities import EntidadBase, Stock, CotizacionDolar
+from book_manager.entities.entities import EntidadBase, Stock, CotizacionDolar
 
 T = TypeVar('T', bound=EntidadBase)
 
@@ -107,7 +107,7 @@ class RepositorioCotizacionDolar(IRepositorioCotizacionDolar):
         self._datos = {}
 
     def crear(self, cotizacion: 'CotizacionDolar') -> 'CotizacionDolar':
-        clave = (cotizacion.tipo_id, cotizacion.fecha)
+        clave = (cotizacion.tipo_cotizacion.id, cotizacion.fecha)
         if clave in self._datos:
             raise ValueError("Ya existe una cotización para este tipo y fecha.")
         self._datos[clave] = cotizacion
@@ -118,10 +118,13 @@ class RepositorioCotizacionDolar(IRepositorioCotizacionDolar):
         return self._datos.get(clave)
 
     def leer_historico_por_tipo(self, tipo_id: int) -> List['CotizacionDolar']:
-        return [cot for cot in self._datos.values() if cot.tipo_id == tipo_id]
+        return [
+            cot for cot in self._datos.values()
+            if cot.tipo_cotizacion.id == tipo_id
+        ]
 
     def actualizar(self, cotizacion: 'CotizacionDolar') -> 'CotizacionDolar':
-        clave = (cotizacion.tipo_id, cotizacion.fecha)
+        clave = (cotizacion.tipo_cotizacion.id, cotizacion.fecha)
         if clave not in self._datos:
             raise ValueError("No se encontró la cotización para actualizar.")
         self._datos[clave] = cotizacion

@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## [Ejercicio 05]
+* Creación de los archivos CSV de precarga en `migrations/csv` (generos,
+  editoriales, monedas, tipos_cotizacion, libros, precios, stock y
+  cotizaciones_dolar), con un mínimo de 10 registros por clase.
+* Implementación de `preload_data.py` con funciones para leer cada CSV
+  y cargar las entidades en sus repositorios, resolviendo las
+  relaciones entre ellas (Libro-Editorial/Genero, Precio-Libro/Moneda,
+  Stock-Libro, CotizacionDolar-TipoCotizacion).
+* Corrección de un bug en `repositories.py` (`RepositorioCotizacionDolar`
+  usaba `cotizacion.tipo_id`, atributo inexistente en la entidad;
+  se corrigió a `cotizacion.tipo_cotizacion.id`).
+* Corrección del import de `repositories.py`, que apuntaba a
+  `src.book_manager.entities.entities` en lugar de
+  `book_manager.entities.entities`, rompiendo la ejecución con el
+  `PYTHONPATH` definido en el notebook.
+
 ## [Ejercicio 03]
 * Creación de interfaces abstractas para la persistencia de datos.
 * Implementación de RepositorioStock y RepositorioCotizacionDolar en memoria.

@@ -1,0 +1,13 @@
+id,isbn,titulo,autor,editorial_id,genero_id
+1,978-950-07-0001-1,Cien Anos de Soledad,Gabriel Garcia Marquez,2,1
+2,978-950-07-0002-2,Rayuela,Julio Cortazar,2,1
+3,978-84-339-0003-3,2666,Roberto Bolano,3,1
+4,978-84-204-0004-4,Sapiens,Yuval Noah Harari,4,10
+5,978-950-07-0005-5,El Aleph,Jorge Luis Borges,9,7
+6,978-84-233-0006-6,Los Detectives Salvajes,Roberto Bolano,3,1
+7,978-950-49-0007-7,Ficciones,Jorge Luis Borges,9,1
+8,978-84-322-0008-8,El Nombre de la Rosa,Umberto Eco,7,5
+9,978-950-07-0009-9,La Ciudad y los Perros,Mario Vargas Llosa,1,1
+10,978-84-397-0010-0,Un Mundo Feliz,Aldous Huxley,5,6
+11,978-950-07-0011-1,El Principito,Antoine de Saint-Exupery,1,3
+12,978-84-204-0012-2,Homo Deus,Yuval Noah Harari,4,10
