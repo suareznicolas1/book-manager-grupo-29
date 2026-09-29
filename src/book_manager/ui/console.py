@@ -131,9 +131,8 @@ class ConsoleUI:
 
             try:
                 if opcion == "1":
-                    id_g = self._leer_int("ID del Género: ")
                     nombre = input("Nombre: ").strip()
-                    g = Genero(id=id_g, nombre=nombre)
+                    g = Genero(id=0, nombre=nombre)
                     self.repo_generos.crear(g)
                     print("✅ Género creado con éxito.")
 
@@ -187,9 +186,8 @@ class ConsoleUI:
 
             try:
                 if opcion == "1":
-                    id_e = self._leer_int("ID de la Editorial: ")
                     nombre = input("Nombre: ").strip()
-                    e = Editorial(id=id_e, nombre=nombre)
+                    e = Editorial(id=0, nombre=nombre)
                     self.repo_editoriales.crear(e)
                     print("✅ Editorial creada con éxito.")
 
@@ -243,10 +241,9 @@ class ConsoleUI:
 
             try:
                 if opcion == "1":
-                    id_m = self._leer_int("ID de la Moneda: ")
                     codigo = input("Código (ej. ARS, USD): ").strip()
                     nombre = input("Nombre: ").strip()
-                    m = Moneda(id=id_m, codigo=codigo, nombre=nombre)
+                    m = Moneda(id=0, codigo=codigo, nombre=nombre)
                     self.repo_monedas.crear(m)
                     print("✅ Moneda creada con éxito.")
 
@@ -301,9 +298,8 @@ class ConsoleUI:
 
             try:
                 if opcion == "1":
-                    id_tc = self._leer_int("ID del Tipo: ")
                     nombre = input("Nombre (ej. Oficial, Blue, MEP): ").strip()
-                    tc = TipoCotizacion(id=id_tc, nombre=nombre)
+                    tc = TipoCotizacion(id=0, nombre=nombre)
                     self.repo_tipos_cotizacion.crear(tc)
                     print("✅ Tipo de cotización creado.")
 
@@ -357,7 +353,6 @@ class ConsoleUI:
 
             try:
                 if opcion == "1":
-                    id_l = self._leer_int("ID del Libro: ")
                     isbn = input("ISBN: ").strip()
                     titulo = input("Título: ").strip()
                     autor = input("Autor: ").strip()
@@ -375,7 +370,7 @@ class ConsoleUI:
                         continue
 
                     libro = Libro(
-                        id=id_l,
+                        id=0,
                         isbn=isbn,
                         titulo=titulo,
                         autor=autor,
@@ -465,8 +460,6 @@ class ConsoleUI:
 
             try:
                 if opcion == "1":
-                    id_p = self._leer_int("ID del Precio: ")
-
                     id_l = self._leer_int("ID del Libro: ")
                     libro = self.repo_libros.leer_por_id(id_l)
                     if not libro:
@@ -480,7 +473,7 @@ class ConsoleUI:
                         continue
 
                     valor = self._leer_float("Valor/Monto: ")
-                    p = Precio(id=id_p, libro=libro, moneda=moneda, valor=valor)
+                    p = Precio(id=0, libro=libro, moneda=moneda, valor=valor)
                     self.repo_precios.crear(p)
                     print("✅ Precio registrado con éxito.")
 

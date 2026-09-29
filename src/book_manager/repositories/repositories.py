@@ -143,8 +143,13 @@ class RepositorioGenerico(IRepositorio[T]):
         self._datos: dict[int, T] = {}
 
     def crear(self, entidad: T) -> T:
+        if not getattr(entidad, "id", None) or entidad.id == 0:
+            nuevo_id = max(self._datos.keys(), default=0) + 1
+            setattr(entidad, "_EntidadBase__id", nuevo_id)
+
         if entidad.id in self._datos:
             raise ValueError(f"Ya existe una entidad con el ID {entidad.id}.")
+
         self._datos[entidad.id] = entidad
         return entidad
 
