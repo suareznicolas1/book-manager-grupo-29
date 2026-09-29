@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [Ejercicio 07]
+* Implementación de `main.py` como punto de entrada principal de la aplicación.
+* Integración desde `main.py` de los repositorios, servicios, precarga de datos e interfaz de consola.
+* Incorporación del parámetro `import_default_data`, permitiendo iniciar la aplicación con o sin la precarga de datos desde los archivos CSV.
+
+### Fixes
+* Corrección de `services.py` para adaptar la capa de servicios a las interfaces y métodos definidos en los repositorios.
+* Implementación de `ServicioBase` genérico para centralizar las operaciones CRUD y sus validaciones.
+* Incorporación de servicios específicos para Stock y Cotización del Dólar, contemplando sus claves particulares.
+* Corrección de las validaciones para permitir la creación de entidades con ID autogenerado y evitar operaciones sobre registros inexistentes.
+* Corrección de `console.py` para utilizar la capa de servicios en lugar de acceder directamente a los repositorios.
+* Corrección de la integración entre `main.py` y `ConsoleUI` para enviar las instancias de los servicios correspondientes.
+* Validación de la ejecución completa de la aplicación y de la precarga opcional de datos.
+
 ## [Ejercicio 06]
 * Creación de los CRUD para Géneros,Editoriales,Monedas,Tipos de Cotización,Libros,Precios,Stock,Cotizaciones del Dolar.
 
@@ -20,12 +34,15 @@
   `book_manager.entities.entities`, rompiendo la ejecución con el
   `PYTHONPATH` definido en el notebook.
 
+## [Ejercicio 04]
+* Creación de servicios.
+
 ## [Ejercicio 03]
 * Creación de interfaces abstractas para la persistencia de datos.
 * Implementación de RepositorioStock y RepositorioCotizacionDolar en memoria.
 * Desarrollo de RepositorioGenerico para cubrir el CRUD del resto de las entidades.
 
-## [Ejercicio 2]
+## [Ejercicio 02]
 
 - Se definieron las entidades del sistema:
   - EntidadBase
@@ -41,7 +58,7 @@
 - Se agregaron validaciones básicas para los atributos de las entidades.
 - Se implementaron relaciones entre entidades mediante objetos.
 
-## [Ejercicio 1]
+## [Ejercicio 01]
 
 - Creación de la estructura inicial del proyecto.
 - Creación de los módulos de entidades, repositorios, servicios e interfaz de consola.
