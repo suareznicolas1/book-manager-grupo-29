@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [Ejercicio 06]
+* Creación de los CRUD para Géneros,Editoriales,Monedas,Tipos de Cotización,Libros,Precios,Stock,Cotizaciones del Dolar.
+
+
 ## [Ejercicio 05]
 * Creación de los archivos CSV de precarga en `migrations/csv` (generos,
   editoriales, monedas, tipos_cotizacion, libros, precios, stock y
