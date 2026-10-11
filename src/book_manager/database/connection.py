@@ -1,0 +1,1 @@
+# Aquí se implementará la conexión a la base de datos.

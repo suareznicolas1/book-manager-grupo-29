@@ -1,5 +1,17 @@
 # CHANGELOG
 
+
+## [Ejercicio 01]
+
+- Inicio del Sprint 2 sobre la rama Sprint_2, partiendo de Sprint_1.
+- Incorporación de las carpetas database y models.
+- Preparación del archivo migrations.py y de la carpeta migrations/sql.
+- Actualización del README con el objetivo y contexto del Sprint 2.
+
+
+## [SPRINT_02]
+
+
 ## [Ejercicio 07]
 * Implementación de `main.py` como punto de entrada principal de la aplicación.
 * Integración desde `main.py` de los repositorios, servicios, precarga de datos e interfaz de consola.
