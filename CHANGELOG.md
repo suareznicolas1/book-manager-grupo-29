@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## [Ejercicio 02]
+
+- Implementación de la clase ConexionDB utilizando SQLAlchemy.
+- Configuración de una base SQLite en la carpeta principal del proyecto.
+- Incorporación de creación de sesiones y verificación de conexión.
+- Exclusión de los archivos de la base local mediante .gitignore.
+
 ## [Ejercicio 01]
 
 - Inicio del Sprint 2 sobre la rama Sprint_2, partiendo de Sprint_1.

@@ -24,3 +24,7 @@ Thumbs.db
 # Variables de entorno / secretos
 .env
 .env.*
+
+
+/book_manager.db
+/book_manager.db-*
