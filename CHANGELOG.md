@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [Ejercicio 05]
+
+- Implementación de `migrar_datos` en `migrations/migrations.py` para migrar los CSV del TP1 a la base de datos.
+- Generación de un archivo `.sql` por tabla en `migrations/sql` con las sentencias INSERT (orden de carga numerado).
+- Ejecución de las sentencias en una única transacción con el context manager de `ConexionDB`.
+- Validación y conversión de cada valor del CSV, con mensajes de error indicando archivo y línea.
+- Migración repetible: las tablas que ya tienen datos se omiten.
+
 ## [Ejercicio 04]
 
 - Definición de los modelos ORM en `models/models.py` con SQLAlchemy (DeclarativeBase y `Mapped`).
