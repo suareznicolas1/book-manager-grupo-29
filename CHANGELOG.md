@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [Ejercicio 07]
+
+- Implementación del método `obtener_cotizaciones()` en `ServicioCotizacionDolar` para consultar cotizaciones mediante la API de DolarAPI.
+- Incorporación de `python-dotenv` para obtener la URL de la API desde el archivo `.env`.
+- Utilización de `requests` para realizar solicitudes HTTP y procesar las respuestas JSON.
+- Integración de las cotizaciones obtenidas con los tipos de cotización existentes en la base de datos.
+- Validación de fechas y valores de compra y venta antes de registrar las cotizaciones.
+- Persistencia de las cotizaciones descargadas en SQLite mediante los repositorios SQLAlchemy.
+- Implementación de controles para evitar registros duplicados por tipo de cotización y fecha.
+- Validación funcional de la descarga, inserción y consulta del histórico, comprobando que las ejecuciones posteriores no generan duplicados.
+
 ## [Ejercicio 06]
 
 - Adaptación de `RepositorioGenerico` para realizar operaciones CRUD sobre la base de datos SQLite mediante SQLAlchemy.

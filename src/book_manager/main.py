@@ -97,9 +97,9 @@ def main(import_default_data: bool = True) -> None:
     servicio_precios = ServicioPrecio(repo_precios)
     servicio_stock = ServicioStock(repo_stock)
     servicio_cotizaciones = ServicioCotizacionDolar(
-        repo_cotizaciones
+        repo_cotizaciones,
+        repo_tipos_cotizacion
     )
-
 
     # ------------------------------------------------------
     # 4. Iniciar interfaz de consola

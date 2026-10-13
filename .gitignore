@@ -22,7 +22,7 @@ htmlcov/
 Thumbs.db
 
 # Variables de entorno / secretos
-.env
+#.env
 .env.*
 
 

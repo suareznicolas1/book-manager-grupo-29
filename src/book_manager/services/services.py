@@ -1,6 +1,12 @@
 import datetime
 from typing import Generic, List, Optional, TypeVar
 
+import os
+from decimal import Decimal, InvalidOperation
+
+import requests
+from dotenv import load_dotenv
+
 from book_manager.entities.entities import (
     EntidadBase,
     Genero,
@@ -176,10 +182,12 @@ class ServicioCotizacionDolar:
     """
 
     def __init__(
-        self,
-        repositorio: IRepositorioCotizacionDolar
-    ):
+    self,
+    repositorio: IRepositorioCotizacionDolar,
+    repositorio_tipos: IRepositorio[TipoCotizacion]
+):
         self.repositorio = repositorio
+        self.repositorio_tipos = repositorio_tipos
 
     def crear(
         self,
@@ -255,3 +263,104 @@ class ServicioCotizacionDolar:
             tipo_id,
             fecha
         )
+
+    def obtener_cotizaciones(self) -> dict:
+        """
+        Descarga cotizaciones desde DolarAPI y las registra en SQLite.
+
+        Utiliza la fecha de actualización informada por la API.
+        Evita duplicados mediante la clave tipo de cotización + fecha.
+
+        Returns:
+            dict: resumen de cotizaciones insertadas, existentes y omitidas.
+        """
+        load_dotenv()
+
+        api_url = os.getenv("API_URL")
+        if not api_url:
+            raise ValueError("No se configuró API_URL en el archivo .env.")
+
+        try:
+            respuesta = requests.get(api_url, timeout=15)
+            respuesta.raise_for_status()
+            datos = respuesta.json()
+        except (requests.RequestException, ValueError) as exc:
+            raise RuntimeError(
+                f"No se pudieron obtener las cotizaciones: {exc}"
+            ) from exc
+
+        if not isinstance(datos, list):
+            raise ValueError("La API no devolvió una lista de cotizaciones.")
+
+        tipos = {
+            tipo.nombre.strip().casefold(): tipo
+            for tipo in self.repositorio_tipos.leer_todos()
+        }
+
+        # Correspondencias entre los códigos de la API
+        # y los nombres definidos en nuestra base de datos.
+        equivalencias = {
+            "oficial": "oficial",
+            "blue": "blue",
+            "bolsa": "bolsa",
+            "contadoconliqui": "ccl",
+            "mayorista": "mayorista",
+            "cripto": "cripto",
+            "tarjeta": "turista",
+        }
+
+        resultado = {
+            "insertadas": 0,
+            "existentes": 0,
+            "omitidas": 0,
+        }
+
+        for dato in datos:
+            try:
+                codigo = str(dato["casa"]).strip().casefold()
+                nombre_tipo = equivalencias.get(codigo, codigo)
+                tipo = tipos.get(nombre_tipo)
+
+                if tipo is None:
+                    resultado["omitidas"] += 1
+                    continue
+
+                fecha_texto = dato["fechaActualizacion"]
+                fecha = datetime.date.fromisoformat(
+                    fecha_texto[:10]
+                )
+
+                compra = Decimal(str(dato["compra"]))
+                venta = Decimal(str(dato["venta"]))
+
+                if not (
+                    compra.is_finite()
+                    and venta.is_finite()
+                    and compra > 0
+                    and venta > 0
+                ):
+                    resultado["omitidas"] += 1
+                    continue
+
+                if self.leer_por_tipo_y_fecha(tipo.id, fecha):
+                    resultado["existentes"] += 1
+                    continue
+
+                cotizacion = CotizacionDolar(
+                    fecha=fecha,
+                    tipo_cotizacion=tipo,
+                    compra=compra,
+                    venta=venta,
+                )
+
+                self.crear(cotizacion)
+                resultado["insertadas"] += 1
+
+            except (
+                KeyError,
+                TypeError,
+                ValueError,
+                InvalidOperation,
+            ):
+                resultado["omitidas"] += 1
+        return resultado
