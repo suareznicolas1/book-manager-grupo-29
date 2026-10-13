@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [Ejercicio 03]
+
+- Implementación del context manager `transaccion` en `ConexionDB` usando `contextlib.contextmanager`.
+- Confirmación automática (commit) al finalizar el bloque sin errores.
+- Reversión (rollback) y relanzamiento de la excepción ante cualquier error.
+- Cierre de la sesión garantizado en todos los casos.
+
 
 ## [Ejercicio 02]
 

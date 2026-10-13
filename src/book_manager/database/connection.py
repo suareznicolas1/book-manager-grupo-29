@@ -1,5 +1,7 @@
 """Conexión a la base de datos mediante SQLAlchemy."""
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
@@ -25,6 +27,32 @@ class ConexionDB:
     def crear_sesion(self) -> Session:
         """Devuelve una sesión para consultar o modificar datos."""
         return self._fabrica_sesiones()
+
+    @contextmanager
+    def transaccion(self) -> Iterator[Session]:
+        """Context manager que maneja una transacción completa.
+
+        Abre una sesión y la entrega al bloque ``with``. Si el bloque termina
+        sin errores se confirma con ``commit``; si ocurre una excepción se
+        deshacen los cambios con ``rollback`` y se vuelve a lanzar. En ambos
+        casos la sesión se cierra al final.
+
+        Yields:
+            Session: sesión activa dentro de la transacción.
+
+        Example:
+            with db.transaccion() as sesion:
+                sesion.add(GeneroModel(nombre="Novela"))
+        """
+        sesion = self.crear_sesion()
+        try:
+            yield sesion
+            sesion.commit()
+        except Exception:
+            sesion.rollback()
+            raise
+        finally:
+            sesion.close()
 
     def verificar_conexion(self) -> bool:
         """Ejecuta una consulta sencilla para comprobar la conexión."""
