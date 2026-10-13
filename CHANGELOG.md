@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [Ejercicio 06]
+
+- Adaptación de `RepositorioGenerico` para realizar operaciones CRUD sobre la base de datos SQLite mediante SQLAlchemy.
+- Implementación de los métodos de creación, consulta, actualización y eliminación utilizando sesiones administradas por `ConexionDB`.
+- Incorporación del mapeo entre las entidades del dominio y los modelos ORM, manteniendo la compatibilidad con la capa de servicios existente.
+- Adaptación de `RepositorioStock` y `RepositorioCotizacionDolar` para utilizar persistencia en la base de datos.
+- Actualización de `main.py` para inicializar la conexión, crear las tablas y utilizar los repositorios SQLAlchemy.
+- Integración del proceso de migración de datos CSV a SQLite mediante el parámetro `import_default_data`.
+- Validación de las operaciones CRUD desde la consola y de la persistencia de los registros después de reiniciar la aplicación.
+- Verificación de las relaciones entre libros, géneros y editoriales, incluyendo las restricciones de integridad.
+
 ## [Ejercicio 05]
 
 - Implementación de `migrar_datos` en `migrations/migrations.py` para migrar los CSV del TP1 a la base de datos.

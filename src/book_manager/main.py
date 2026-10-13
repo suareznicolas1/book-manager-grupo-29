@@ -57,48 +57,31 @@ def main(import_default_data: bool = True) -> None:
     # 1. Crear repositorios
     # ------------------------------------------------------
 
-    repo_generos = RepositorioGenerico[Genero]()
-    repo_editoriales = RepositorioGenerico[Editorial]()
-    repo_monedas = RepositorioGenerico[Moneda]()
-    repo_tipos_cotizacion = RepositorioGenerico[TipoCotizacion]()
-    repo_libros = RepositorioGenerico[Libro]()
-    repo_precios = RepositorioGenerico[Precio]()
+    from book_manager.database.connection import ConexionDB
+    from book_manager.models.models import crear_tablas
+    from book_manager.migrations.migrations import migrar_datos
 
-    repo_stock = RepositorioStock()
-    repo_cotizaciones = RepositorioCotizacionDolar()
+    db = ConexionDB()
+    crear_tablas(db.engine)
+
+    repo_generos = RepositorioGenerico(Genero, db)
+    repo_editoriales = RepositorioGenerico(Editorial, db)
+    repo_monedas = RepositorioGenerico(Moneda, db)
+    repo_tipos_cotizacion = RepositorioGenerico(TipoCotizacion, db)
+    repo_libros = RepositorioGenerico(Libro, db)
+    repo_precios = RepositorioGenerico(Precio, db)
+    repo_stock = RepositorioStock(db)
+    repo_cotizaciones = RepositorioCotizacionDolar(db)
 
     # ------------------------------------------------------
     # 2. Precarga de datos desde CSV
     # ------------------------------------------------------
 
     if import_default_data:
-
-        print("Iniciando precarga de datos desde archivos CSV...")
-
-        try:
-
-            precargar_datos(
-                repo_generos=repo_generos,
-                repo_editoriales=repo_editoriales,
-                repo_monedas=repo_monedas,
-                repo_tipos_cotizacion=repo_tipos_cotizacion,
-                repo_libros=repo_libros,
-                repo_precios=repo_precios,
-                repo_stock=repo_stock,
-                repo_cotizaciones=repo_cotizaciones,
-            )
-
-            print("✅ Precarga completada exitosamente.")
-
-        except Exception as e:
-
-            print(
-                f"⚠️ Error durante la precarga de datos: {e}"
-            )
-
+        carpeta = Path(__file__).resolve().parent / "migrations"
+        migrar_datos(str(carpeta / "csv"), str(carpeta / "sql"), db)
     else:
-
-        print("ℹ️ Sistema iniciado sin precarga de datos.")
+        print("Sistema iniciado con base de datos, sin migración inicial.")
 
     # ------------------------------------------------------
     # 3. Crear servicios
