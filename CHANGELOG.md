@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [Ejercicio 04]
+
+- Definición de los modelos ORM en `models/models.py` con SQLAlchemy (DeclarativeBase y `Mapped`).
+- Tablas creadas: generos, editoriales, monedas, tipos_cotizacion, libros, precios, stock y cotizaciones_dolar.
+- Relaciones entre tablas mediante claves foráneas y `relationship`.
+- Claves primarias compuestas en cotizaciones_dolar (tipo y fecha) y clave primaria/foránea en stock (libro).
+- Restricciones de integridad: valores únicos (ISBN, nombres, código de moneda), un precio por libro y moneda, y valores no negativos.
+- Incorporación de la función `crear_tablas` para generar el esquema en la base.
+
 ## [Ejercicio 03]
 
 - Implementación del context manager `transaccion` en `ConexionDB` usando `contextlib.contextmanager`.
