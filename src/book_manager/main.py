@@ -41,6 +41,7 @@ from book_manager.services.services import (
     ServicioPrecio,
     ServicioStock,
     ServicioCotizacionDolar,
+    ServicioReportePrecios,
 )
 
 from book_manager.preload_data.preload_data import precargar_datos
@@ -100,6 +101,9 @@ def main(import_default_data: bool = True) -> None:
         repo_cotizaciones,
         repo_tipos_cotizacion
     )
+    servicio_reportes = ServicioReportePrecios(
+        servicio_precios, servicio_monedas, servicio_cotizaciones
+    )
 
     # ------------------------------------------------------
     # 4. Iniciar interfaz de consola
@@ -114,6 +118,7 @@ def main(import_default_data: bool = True) -> None:
         servicio_precios=servicio_precios,
         servicio_stock=servicio_stock,
         servicio_cotizaciones=servicio_cotizaciones,
+        servicio_reportes=servicio_reportes,
     )
 
     ui.iniciar()

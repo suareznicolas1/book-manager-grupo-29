@@ -1,4 +1,6 @@
+import csv
 import datetime
+from pathlib import Path
 from typing import Generic, List, Optional, TypeVar
 
 import os
@@ -364,3 +366,96 @@ class ServicioCotizacionDolar:
             ):
                 resultado["omitidas"] += 1
         return resultado
+
+
+# ==========================================================
+# Servicio Reporte de Precios
+# ==========================================================
+
+class ServicioReportePrecios:
+    """Genera los reportes de precios en distintas monedas."""
+
+    CODIGO_PESOS = "ARS"
+    CODIGO_DOLAR = "USD"
+
+    def __init__(
+        self,
+        servicio_precios: ServicioPrecio,
+        servicio_monedas: ServicioMoneda,
+        servicio_cotizaciones: ServicioCotizacionDolar,
+    ) -> None:
+        self.servicio_precios = servicio_precios
+        self.servicio_monedas = servicio_monedas
+        self.servicio_cotizaciones = servicio_cotizaciones
+
+    def _venta_mas_reciente(self, tipo_id: int) -> Optional[float]:
+        """Devuelve la última cotización de venta del tipo indicado."""
+        historico = self.servicio_cotizaciones.leer_historico_por_tipo(tipo_id)
+        return historico[-1].venta if historico else None
+
+    def _precio_en(
+        self,
+        pesos: float,
+        libro_id: int,
+        moneda: Moneda,
+        guardados: dict[tuple[int, int], float],
+        venta: Optional[float],
+    ) -> Optional[float]:
+        """Precio de un libro en una moneda: guardado o convertido."""
+        if (libro_id, moneda.id) in guardados:
+            return guardados[(libro_id, moneda.id)]
+        if moneda.codigo == self.CODIGO_DOLAR and venta:
+            return round(pesos / venta, 2)
+        return None
+
+    def _precios_guardados(self) -> dict[tuple[int, int], float]:
+        return {
+            (p.libro.id, p.moneda.id): p.valor
+            for p in self.servicio_precios.leer_todos()
+        }
+
+    def lista_bimonetaria(
+        self, moneda: Moneda, tipo_cotizacion_id: int
+    ) -> list[tuple[Libro, float, Optional[float]]]:
+        """Devuelve (libro, precio en pesos, precio en la otra moneda)."""
+        guardados = self._precios_guardados()
+        venta = self._venta_mas_reciente(tipo_cotizacion_id)
+        filas = []
+        for p in self.servicio_precios.leer_todos():
+            if p.moneda.codigo != self.CODIGO_PESOS:
+                continue
+            otro = self._precio_en(p.valor, p.libro.id, moneda, guardados, venta)
+            filas.append((p.libro, p.valor, otro))
+        return filas
+
+    def exportar_csv(self, ruta: str, tipo_cotizacion_id: int) -> int:
+        """Exporta los precios de todos los libros en todas las monedas.
+
+        Returns:
+            int: cantidad de libros exportados.
+        """
+        monedas = self.servicio_monedas.leer_todos()
+        guardados = self._precios_guardados()
+        venta = self._venta_mas_reciente(tipo_cotizacion_id)
+        pesos_por_libro = {
+            p.libro.id: p
+            for p in self.servicio_precios.leer_todos()
+            if p.moneda.codigo == self.CODIGO_PESOS
+        }
+        destino = Path(ruta)
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        with open(destino, "w", newline="", encoding="utf-8") as archivo:
+            escritor = csv.writer(archivo)
+            escritor.writerow(
+                ["isbn", "titulo"] + [m.codigo for m in monedas]
+            )
+            for p in pesos_por_libro.values():
+                valores = [
+                    self._precio_en(p.valor, p.libro.id, m, guardados, venta)
+                    for m in monedas
+                ]
+                escritor.writerow(
+                    [p.libro.isbn, p.libro.titulo]
+                    + ["" if v is None else f"{v:.2f}" for v in valores]
+                )
+        return len(pesos_por_libro)

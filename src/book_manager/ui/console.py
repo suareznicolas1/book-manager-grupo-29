@@ -20,6 +20,7 @@ from book_manager.services.services import (
     ServicioPrecio,
     ServicioStock,
     ServicioCotizacionDolar,
+    ServicioReportePrecios,
 )
 
 
@@ -36,6 +37,7 @@ class ConsoleUI:
         servicio_precios: ServicioPrecio,
         servicio_stock: ServicioStock,
         servicio_cotizaciones: ServicioCotizacionDolar,
+        servicio_reportes: ServicioReportePrecios,
     ) -> None:
         self.servicio_generos = servicio_generos
         self.servicio_editoriales = servicio_editoriales
@@ -45,6 +47,7 @@ class ConsoleUI:
         self.servicio_precios = servicio_precios
         self.servicio_stock = servicio_stock
         self.servicio_cotizaciones = servicio_cotizaciones
+        self.servicio_reportes = servicio_reportes
 
     # -------------------------------------------------------------------------
     # Auxiliares de Lectura
@@ -90,6 +93,9 @@ class ConsoleUI:
             print("6. Precios")
             print("7. Stock")
             print("8. Cotizaciones del Dólar")
+            print("9. Obtener cotizaciones por API")
+            print("10. Lista de precios bimonetaria")
+            print("11. Exportar precios a CSV")
             print("0. Salir")
             print("-" * 50)
 
@@ -111,6 +117,12 @@ class ConsoleUI:
                 self._menu_stock()
             elif opcion == "8":
                 self._menu_cotizacion_dolar()
+            elif opcion == "9":
+                self._obtener_cotizaciones_api()
+            elif opcion == "10":
+                self._ver_lista_bimonetaria()
+            elif opcion == "11":
+                self._exportar_precios_csv()
             elif opcion == "0":
                 print("\n¡Gracias por utilizar Book Manager!")
                 break
@@ -682,3 +694,76 @@ class ConsoleUI:
                         print("❌ Cotización no encontrada.")
             except Exception as e:
                 print(f"❌ Error: {e}")
+
+    # -------------------------------------------------------------------------
+    # 9. Cotizaciones por API
+    # -------------------------------------------------------------------------
+    def _obtener_cotizaciones_api(self) -> None:
+        """Descarga las cotizaciones de la API y muestra el resumen."""
+        try:
+            resultado = self.servicio_cotizaciones.obtener_cotizaciones()
+            print(
+                f"✅ Insertadas: {resultado['insertadas']} | "
+                f"Ya existentes: {resultado['existentes']} | "
+                f"Omitidas: {resultado['omitidas']}"
+            )
+        except (RuntimeError, ValueError) as e:
+            print(f"❌ Error: {e}")
+
+    def _elegir_tipo_cotizacion(self) -> Optional[int]:
+        """Lista los tipos de cotización y devuelve el ID elegido."""
+        for tipo in self.servicio_tipos_cotizacion.leer_todos():
+            print(f"  {tipo.id}. {tipo.nombre}")
+        tipo = self.servicio_tipos_cotizacion.leer_por_id(
+            self._leer_int("Tipo de cotización a utilizar: ")
+        )
+        if tipo is None:
+            print("❌ Tipo de cotización inexistente.")
+            return None
+        return tipo.id
+
+    # -------------------------------------------------------------------------
+    # 10. Lista de precios bimonetaria
+    # -------------------------------------------------------------------------
+    def _ver_lista_bimonetaria(self) -> None:
+        """Muestra los precios en pesos y en otra moneda seleccionada."""
+        try:
+            for m in self.servicio_monedas.leer_todos():
+                print(f"  {m.id}. {m.codigo} - {m.nombre}")
+            moneda = self.servicio_monedas.leer_por_id(
+                self._leer_int("ID de la moneda a comparar con ARS: ")
+            )
+            if moneda is None:
+                print("❌ Moneda inexistente.")
+                return
+
+            tipo_id = self._elegir_tipo_cotizacion()
+            if tipo_id is None:
+                return
+
+            filas = self.servicio_reportes.lista_bimonetaria(moneda, tipo_id)
+            if not filas:
+                print("No hay precios en pesos registrados.")
+                return
+
+            print(f"\n{'Título':<40}{'ARS':>14}{moneda.codigo:>14}")
+            for libro, pesos, otro in filas:
+                texto = f"{otro:,.2f}" if otro is not None else "-"
+                print(f"{libro.titulo[:38]:<40}{pesos:>14,.2f}{texto:>14}")
+        except Exception as e:
+            print(f"❌ Error: {e}")
+
+    # -------------------------------------------------------------------------
+    # 11. Exportar precios a CSV
+    # -------------------------------------------------------------------------
+    def _exportar_precios_csv(self) -> None:
+        """Exporta los precios de todos los libros en todas las monedas."""
+        try:
+            tipo_id = self._elegir_tipo_cotizacion()
+            if tipo_id is None:
+                return
+            ruta = "exports/precios.csv"
+            cantidad = self.servicio_reportes.exportar_csv(ruta, tipo_id)
+            print(f"✅ {cantidad} libros exportados a {ruta}")
+        except Exception as e:
+            print(f"❌ Error: {e}")

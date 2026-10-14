@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [Ejercicio 08]
+
+- Incorporación de la opción de menú para obtener las cotizaciones mediante la API, mostrando el resumen de registros insertados, existentes y omitidos.
+- Incorporación de la opción de menú para ver la lista de precios bimonetaria de los libros, en pesos y en otra moneda seleccionada.
+- Incorporación de la opción de menú para exportar los precios a un archivo CSV con todas las monedas.
+- Implementación de `ServicioReportePrecios` en `services.py` con los métodos `lista_bimonetaria` y `exportar_csv`.
+- Conversión a dólares utilizando la última cotización de venta del tipo de cotización elegido; si el libro ya tiene un precio cargado en esa moneda, se utiliza ese valor.
+- Actualización de `main.py` para crear `ServicioReportePrecios` y enviarlo a `ConsoleUI`.
+- Validación funcional de la lista bimonetaria y de la exportación a `exports/precios.csv`.
+
 ## [Ejercicio 07]
 
 - Implementación del método `obtener_cotizaciones()` en `ServicioCotizacionDolar` para consultar cotizaciones mediante la API de DolarAPI.
