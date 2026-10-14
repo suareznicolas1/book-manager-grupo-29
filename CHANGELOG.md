@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [Integración con Supabase]
+
+- Incorporación de PostgreSQL en Supabase como alternativa a SQLite.
+- Configuración dinámica de la conexión mediante `DATABASE_URL` y `python-dotenv`.
+- Instalación del controlador `psycopg2-binary` para PostgreSQL.
+- Creación automática de las ocho tablas y sus relaciones mediante SQLAlchemy.
+- Migración de los datos iniciales desde archivos CSV a PostgreSQL.
+- Implementación de `sincronizar_secuencias()` para actualizar automáticamente los identificadores autoincrementales después de la migración.
+- Mantenimiento de compatibilidad con SQLite.
+- Validación del CRUD y la persistencia de datos en Supabase.
+
 ## [Ejercicio 08]
 
 - Incorporación de la opción de menú para obtener las cotizaciones mediante la API, mostrando el resumen de registros insertados, existentes y omitidos.

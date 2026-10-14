@@ -1,3 +1,4 @@
+
 """Migración de datos desde los archivos CSV a la base de datos.
 
 Lee los CSV del TP1, genera un archivo ``.sql`` por tabla con las
@@ -155,6 +156,60 @@ def _guardar_sql(
 
 
 # ============================================================
+# Sincronización de secuencias PostgreSQL
+# ============================================================
+
+def sincronizar_secuencias(conexion: ConexionDB) -> None:
+    """Sincroniza las secuencias autoincrementales de PostgreSQL.
+
+    Los CSV contienen IDs explícitos, por lo que las secuencias
+    de PostgreSQL pueden quedar desactualizadas después de migrar.
+
+    En SQLite no es necesario realizar esta operación.
+    """
+    if conexion.engine.dialect.name != "postgresql":
+        return
+
+    tablas = [
+        "generos",
+        "editoriales",
+        "monedas",
+        "tipos_cotizacion",
+        "libros",
+        "precios",
+    ]
+
+    with conexion.transaccion() as sesion:
+        cnx = sesion.connection()
+
+        for tabla in tablas:
+            secuencia = cnx.exec_driver_sql(
+                "SELECT pg_get_serial_sequence(%s, %s)",
+                (f"public.{tabla}", "id"),
+            ).scalar_one_or_none()
+
+            if secuencia is None:
+                continue
+
+            ultimo_id = cnx.exec_driver_sql(
+                f"SELECT MAX(id) FROM public.{tabla}"
+            ).scalar_one()
+
+            if ultimo_id is None:
+                cnx.exec_driver_sql(
+                    "SELECT setval(%s, 1, false)",
+                    (secuencia,),
+                )
+            else:
+                cnx.exec_driver_sql(
+                    "SELECT setval(%s, %s, true)",
+                    (secuencia, ultimo_id),
+                )
+
+            print(f"- Secuencia sincronizada: {tabla}")
+
+
+# ============================================================
 # Migración
 # ============================================================
 
@@ -163,20 +218,23 @@ def migrar_datos(
     carpeta_sqls: str,
     db: ConexionDB | None = None,
 ) -> dict[str, int]:
-    """Función encargada de la migración de datos de csv a sql.
-    Se encarga de leer los archivos csv y crear los archivos sql
-    para la inserción en la base de datos.
+    """Función encargada de la migración de datos de CSV a SQL.
 
-    Crea las tablas si no existen, genera un archivo .sql por tabla (con
-    prefijo numérico que indica el orden de carga) y ejecuta las sentencias
-    en una sola transacción. Si una tabla ya tiene datos no se vuelve a
-    cargar, por lo que la función puede ejecutarse más de una vez.
+    Lee los archivos CSV y genera archivos SQL para la inserción
+    de los registros en la base de datos.
+
+    Crea las tablas si no existen, genera un archivo .sql por tabla
+    y ejecuta las sentencias en una única transacción.
+
+    Si una tabla ya tiene datos, no vuelve a cargarlos.
+
+    En PostgreSQL, al finalizar sincroniza las secuencias para
+    permitir nuevas inserciones con IDs autoincrementales.
 
     Args:
-        carpeta_csvs (str): Carpeta donde se encuentran los archivos csv de origen.
-        carpeta_sqls (str): Carpeta donde se deben guardar los archivos sql generados.
-        db (ConexionDB | None): conexión a usar. Si es None se usa la
-            base por defecto del proyecto.
+        carpeta_csvs (str): carpeta de los archivos CSV de origen.
+        carpeta_sqls (str): carpeta de los archivos SQL generados.
+        db (ConexionDB | None): conexión a utilizar.
 
     Returns:
         dict[str, int]: cantidad de filas insertadas por tabla.
@@ -190,27 +248,52 @@ def migrar_datos(
 
     # 1. Generar todos los .sql antes de tocar la base de datos.
     pendientes: list[tuple[str, list[str]]] = []
+
     for orden, (archivo_csv, tabla, columnas) in enumerate(TABLAS, start=1):
-        sentencias = _generar_sentencias(origen / archivo_csv, tabla, columnas)
-        _guardar_sql(destino / f"{orden:02d}_{tabla}.sql", archivo_csv, tabla, sentencias)
+        sentencias = _generar_sentencias(
+            origen / archivo_csv,
+            tabla,
+            columnas,
+        )
+
+        _guardar_sql(
+            destino / f"{orden:02d}_{tabla}.sql",
+            archivo_csv,
+            tabla,
+            sentencias,
+        )
+
         pendientes.append((tabla, sentencias))
 
     # 2. Ejecutar las sentencias en una única transacción.
     insertadas: dict[str, int] = {}
+
     with conexion.transaccion() as sesion:
         cnx: Any = sesion.connection()
+
         for tabla, sentencias in pendientes:
             existentes = cnx.exec_driver_sql(
                 f"SELECT COUNT(*) FROM {tabla}"
             ).scalar_one()
+
             if existentes:
                 print(f"- {tabla}: ya tiene datos, se omite.")
                 insertadas[tabla] = 0
                 continue
+
             for sentencia in sentencias:
                 cnx.exec_driver_sql(sentencia)
+
             insertadas[tabla] = len(sentencias)
-            print(f"- {tabla}: {len(sentencias)} registros insertados.")
+
+            print(
+                f"- {tabla}: {len(sentencias)} registros insertados."
+            )
+
+    # 3. Sincronizar las secuencias de PostgreSQL.
+    # Se ejecuta después del commit de la migración.
+    sincronizar_secuencias(conexion)
+
     return insertadas
 
 
